@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ТК Highway Express</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .logo {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .time-display {
+            font-size: 72px;
+            font-weight: bold;
+            color: #00FFBB;
+            margin: 30px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            font-family: 'Courier New', monospace;
+        }
+
+        .date-display {
+            font-size: 24px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #00FFBB 0%, #00AA88 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 255, 187, 0.3);
+            margin: 10px;
+            display: inline-block;
+        }
+
+        .button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 255, 187, 0.4);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .info {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 255, 187, 0.1);
+            border-radius: 10px;
+            color: #333;
+        }
+
+        .info h3 {
+            color: #00AA88;
+            margin-bottom: 10px;
+        }
+
+        .info p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        /* Login стили */
+        .login-container {
+            display: none;
+        }
+
+        .login-container.active {
+            display: block;
+        }
+
+        .main-container.hidden {
+            display: none;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .password-input:focus {
+            outline: none;
+            border-color: #00FFBB;
+        }
+
+        .error-message {
+            color: #ff4444;
+            margin: 10px 0;
+            font-size: 14px;
+            display: none;
+        }
+
+        .error-message.visible {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="container login-container" id="loginScreen">
+        <div class="logo">�</div>
+        <h1>ТК Highway Express</h1>
+        <p style="color: #666; margin-bottom: 20px;">Введіть пароль для доступу</p>
+
+        <input type="password" class="password-input" id="passwordInput" placeholder="Пароль" onkeypress="handleKeyPress(event)">
+        <div class="error-message" id="errorMessage">❌ Невірний пароль!</div>
+
+        <button class="button" onclick="checkPassword()">🔓 Увійти</button>
+    </div>
+
+    <!-- Main Screen -->
+    <div class="container main-container hidden" id="mainScreen">
+        <div class="logo">�🚛</div>
+        <h1>ТК Highway Express</h1>
+        <p style="color: #666; margin-bottom: 20px;">Точний час України</p>
+
+        <div class="time-display" id="time">00:00:00</div>
+        <div class="date-display" id="date">Понеділок, 1 січня 2024</div>
+
+        <div class="button-container">
+            <button class="button" onclick="openPopup()">📌 Закріпити поверх гри</button>
+            <button class="button" onclick="location.reload()">🔄 Оновити</button>
+        </div>
+
+        <div class="info">
+            <h3>📋 Інформація</h3>
+            <p>⏰ Час з точністю до секунд</p>
+            <p>🇺🇦 Часовий пояс: UTC+2 (зимній) / UTC+3 (літній)</p>
+            <p>🎮 Можна закріпити поверх ігор</p>
+            <p>💡 Натисни кнопку для закріплення</p>
+        </div>
+    </div>
+
+    <script>
+        const CORRECT_PASSWORD = "HE123456";
+
+        function checkPassword() {
+            const input = document.getElementById('passwordInput');
+            const error = document.getElementById('errorMessage');
+
+            if (input.value === CORRECT_PASSWORD) {
+                localStorage.setItem('highway-auth', 'true');
+                showMainScreen();
+            } else {
+                error.classList.add('visible');
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                checkPassword();
+            }
+        }
+
+        function showMainScreen() {
+            document.getElementById('loginScreen').classList.remove('active');
+            document.getElementById('mainScreen').classList.remove('hidden');
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainScreen').style.display = 'block';
+        }
+
+        function showLoginScreen() {
+            document.getElementById('loginScreen').classList.add('active');
+            document.getElementById('mainScreen').classList.add('hidden');
+            document.getElementById('loginScreen').style.display = 'block';
+            document.getElementById('mainScreen').style.display = 'none';
+        }
+
+        // Проверка авторизации при загрузке
+        function checkAuth() {
+            const auth = localStorage.getItem('highway-auth');
+            if (auth === 'true') {
+                showMainScreen();
+            } else {
+                showLoginScreen();
+            }
+        }
+
+        function updateTime() {
+            try {
+                const now = new Date();
+                const options = {
+                    timeZone: 'Europe/Kiev',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                };
+
+                const timeString = now.toLocaleTimeString('uk-UA', options);
+                const timeElement = document.getElementById('time');
+                if (timeElement) {
+                    timeElement.textContent = timeString;
+                }
+
+                const dateOptions = {
+                    timeZone: 'Europe/Kiev',
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                };
+
+                const dateString = now.toLocaleDateString('uk-UA', dateOptions);
+                const dateElement = document.getElementById('date');
+                if (dateElement) {
+                    dateElement.textContent = dateString.charAt(0).toUpperCase() + dateString.slice(1);
+                }
+            } catch (error) {
+                console.error('Ошибка обновления времени:', error);
+            }
+        }
+
+        function openPopup() {
+            try {
+                const popupWindow = window.open(
+                    '',
+                    'TimePopup',
+                    'width=300,height=150,menubar=no,toolbar=no,location=no,status=no,scrollbars=no,resizable=no'
+                );
+
+                if (popupWindow) {
+                    popupWindow.document.write(`
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <title>ТК Highway Express</title>
+                            <style>
+                                body {
+                                    margin: 0;
+                                    padding: 20px;
+                                    background: #1a1a1a;
+                                    color: #00FFBB;
+                                    font-family: 'Courier New', monospace;
+                                    font-size: 48px;
+                                    font-weight: bold;
+                                    display: flex;
+                                    flex-direction: column;
+                                    justify-content: center;
+                                    align-items: center;
+                                    height: 100vh;
+                                }
+                                .header {
+                                    font-size: 16px;
+                                    color: #fff;
+                                    margin-bottom: 20px;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="header">🚛 ТК Highway Express</div>
+                            <div id="popup-time">00:00:00</div>
+                            <script>
+                                function updateTime() {
+                                    try {
+                                        const now = new Date();
+                                        const options = {
+                                            timeZone: 'Europe/Kiev',
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            second: '2-digit',
+                                            hour12: false
+                                        };
+                                        const element = document.getElementById('popup-time');
+                                        if (element) {
+                                            element.textContent = now.toLocaleTimeString('uk-UA', options);
+                                        }
+                                    } catch (e) {
+                                        console.error(e);
+                                    }
+                                }
+                                setInterval(updateTime, 1000);
+                                updateTime();
+                            <\/script>
+                        </body>
+                        </html>
+                    `);
+                    popupWindow.document.close();
+                } else {
+                    alert('⚠️ Блокувальник спливаючих вікон заблокував відкриття. Дозволь спливаючі вікна для цього сайту.');
+                }
+            } catch (error) {
+                alert('⚠️ Помилка відкриття вікна: ' + error.message);
+            }
+        }
+
+        // Инициализация
+        checkAuth();
+        setInterval(updateTime, 1000);
+        updateTime();
+    </script>
+</body>
+</html>
